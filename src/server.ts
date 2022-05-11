@@ -2,11 +2,8 @@ import express, { Express, Request, Response } from 'express';
 import { Config } from './config';
 import { Handler, IssueHandler, PushHandler } from './handler';
 
-enum Kind {
-  PUSH = "push",
-  TAG = "tag",
-  ISSUE = "issue",
-}
+type Kind = "push" |"tag" | "issue";
+
 export class Server {
 
   private readonly port;
@@ -37,7 +34,7 @@ export class Server {
         res.status(status);
       }
       else {
-        this.logger.log(`Unrecognized event kind ${kind}`);
+        this.logger.log(`Unrecognized event kind [${kind}]`);
         res.status(403);
       }
     });
@@ -49,11 +46,11 @@ export class Server {
 
   private getHandler(kind: Kind): Handler | undefined {
     switch (kind) {
-      case Kind.PUSH:
+      case 'push':
         return this.pushHandler;
-      case Kind.ISSUE:
+      case 'issue':
         return this.issueHandler;
-      case Kind.TAG:
+      case 'tag':
       default:
         return undefined;
     }
