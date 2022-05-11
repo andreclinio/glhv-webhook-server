@@ -32,10 +32,12 @@ export class Server {
       const kind = kindRaw as Kind;
       const handler = this.getHandler(kind);
       if (handler) {
-        handler.handle(body);
-        res.status(200);
+        this.logger.log(`Rrecognized event kind ${kind}`);
+        const status = handler.handle(body);
+        res.status(status);
       }
       else {
+        this.logger.log(`Unrecognized event kind ${kind}`);
         res.status(403);
       }
     });
@@ -53,7 +55,6 @@ export class Server {
         return this.issueHandler;
       case Kind.TAG:
       default:
-        this.logger.log(`Unrecognized kind ${kind}`);
         return undefined;
     }
   }
