@@ -15,13 +15,17 @@ export class Server {
   run(): void {
     this.logger.log(`Server is starting...`);
     const app: Express = express();
-    app.get('/', (req: Request, res: Response) => {
-      res.send(`${req.body}`);
+    app.use(express.json());
+    app.post('/', (req: Request, res: Response) => {
+      const body = req.body;
+      const bodyAsString = JSON.stringify(body);
+      const kind = body.object_kind;
+      this.logger.log(`WebHook activated body :${kind}`);
+      res.status(200);
     });
 
     app.listen(this.port, () => {
       this.logger.log(`Server is running at localhost:${this.port}`);
     });
-
   }
 }
