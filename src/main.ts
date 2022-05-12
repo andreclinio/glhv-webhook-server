@@ -27,6 +27,8 @@ yargs(hideBin(process.argv))
     "run",
     (argv) => {
       Config.addPortOption(argv);
+      Config.addTokenOption(argv);
+      Config.addApplicationNameOption(argv);
     },
     (args) => {
       const config = new Config(args);

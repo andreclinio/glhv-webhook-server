@@ -1,6 +1,9 @@
 import express, { Express, Request, Response } from 'express';
 import { Config } from './config';
-import { Handler, IssueHandler, PushHandler } from './handler';
+import { Handler } from './handlers/core';
+import { IssueHandler } from './handlers/issue_handler';
+import { PushHandler } from './handlers/push_handler';
+import { Sender } from './sender';
 
 type Kind = "push" |"tag" | "issue";
 
@@ -14,8 +17,11 @@ export class Server {
   constructor(config: Config) {
     this.port = config.getPort();
     this.logger = config.logger;
-    this.pushHandler = new PushHandler(this.logger);
-    this.issueHandler = new IssueHandler(this.logger);
+    const token = config.getToken();
+    const appName = config.getApplicationName();
+    const sender = new Sender(this.logger, appName, token);
+    this.pushHandler = new PushHandler(sender, this.logger);
+    this.issueHandler = new IssueHandler(sender, this.logger);
   }
 
   run(): void {
@@ -29,7 +35,7 @@ export class Server {
       const kind = kindRaw as Kind;
       const handler = this.getHandler(kind);
       if (handler) {
-        this.logger.log(`Rrecognized event kind ${kind}`);
+        this.logger.log(`Recognized event kind ${kind}`);
         const status = handler.handle(body);
         res.status(status);
       }
