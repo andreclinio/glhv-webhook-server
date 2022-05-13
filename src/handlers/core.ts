@@ -16,8 +16,8 @@ export abstract class Handler {
     this.sender = sender;
   }
 
-  sendMessage(message: string) : void {
-    this.sender.sendMessage(message).subscribe( _id => {});
+  sendMessage(projectPathWithNamespace: string, message: string) : void {
+    this.sender.sendMessage(projectPathWithNamespace, message).subscribe( _id => {});
   }
 }
 

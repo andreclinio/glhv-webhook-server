@@ -7,36 +7,35 @@ export class Config {
   private readonly args: Arguments;
 
   public static readonly PORT_TAG = "port";
-  public static readonly TOKEN_TAG = "token";
-  public static readonly APP_NAME_TAG = "application-name";
+  public static readonly DEVICE_TOKEN_TAG = "device-token";
+  public static readonly GITLAB_SERVER_URL_TAG = "gitlab-server-url";
 
   static addPortOption(argv: yargs.Argv): yargs.Argv {
     return argv.option(Config.PORT_TAG, {
       type: "number",
       alias: "p",
-      default: 44000,
       demandOption: true,
       description: "Set the server port",
     });
   }
 
-  static addTokenOption(argv: yargs.Argv): yargs.Argv {
-    return argv.option(Config.TOKEN_TAG, {
+  static addDeviceTokenOption(argv: yargs.Argv): yargs.Argv {
+    return argv.option(Config.DEVICE_TOKEN_TAG, {
       type: "string",
-      alias: "t",
-      default: "this-is-not-a-token",
+      alias: "d",
+      requiresArg: true,
       demandOption: true,
-      description: "Set the FCM app token",
+      description: "Set the FCM device token",
     });
   }
 
-  static addApplicationNameOption(argv: yargs.Argv): yargs.Argv {
-    return argv.option(Config.APP_NAME_TAG, {
+  static addGitlabServerUrlOption(argv: yargs.Argv): yargs.Argv {
+    return argv.option(Config.GITLAB_SERVER_URL_TAG, {
       type: "string",
-      alias: "a",
-      default: "this-is-not-a-application-name",
+      alias: "g",
       demandOption: true,
-      description: "Set the FCM application name (id)",
+      requiresArg: true,
+      description: "Set the Gitlab server URL",
     });
   }
 
@@ -51,19 +50,19 @@ export class Config {
     return port;
   }
 
-  public getToken(): string {
-    const token = this.args[Config.TOKEN_TAG] as string;
-    const length = token.length;
+  public getDeviceToken(): string {
+    const deviceToken = this.args[Config.DEVICE_TOKEN_TAG] as string;
+    const length = deviceToken.length;
     const prefixCard = 7
     const sufixCard = 10
-    this.logger.log(`token: ${token.substring(0, prefixCard) + '.....' + token.substring(length-sufixCard-1, length-1)}`);
-    return token;
+    this.logger.log(`Device token: ${deviceToken.substring(0, prefixCard) + '.....' + deviceToken.substring(length-sufixCard-1, length-1)}`);
+    return deviceToken;
   }
 
-  public getApplicationName(): string {
-    const appName = this.args[Config.APP_NAME_TAG] as string;
-    this.logger.log(`application name: ${appName}`);
-    return appName;
+  public getGitlabServerUrl(): string {
+    const gitlabServerUrl = this.args[Config.GITLAB_SERVER_URL_TAG] as string;
+    this.logger.log(`Gitlab server URL: ${gitlabServerUrl}`);
+    return gitlabServerUrl;
   }
 
 }

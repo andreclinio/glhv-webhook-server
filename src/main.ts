@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
+import { argv } from "process";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import { Config } from "./config";
+import { Sender } from "./sender";
 import { Server } from "./server";
 
 
@@ -24,16 +26,35 @@ yargs(hideBin(process.argv))
 
   .command(
     `run`,
-    "run",
+    "this command runs the program as a server (GitLab webhook) at specific port",
     (argv) => {
       Config.addPortOption(argv);
-      Config.addTokenOption(argv);
-      Config.addApplicationNameOption(argv);
+      Config.addGitlabServerUrlOption(argv);
     },
     (args) => {
       const config = new Config(args);
+      const logger = config.logger;
+      logger.log(`Command: run`);
       const server = new Server(config);
       server.run();
+    }
+  )
+
+  .command(
+    `test-notify`,
+    "this command notifies a device for debug pourposes only",
+    (argv) => {
+      Config.addDeviceTokenOption(argv);
+      Config.addGitlabServerUrlOption(argv);
+    },
+    (args) => {
+      const config = new Config(args);
+      const logger = config.logger;
+      logger.log(`Command: notify`);
+      const gitlabServerUrl = config.getGitlabServerUrl();
+      const deviceToken = config.getDeviceToken();
+      const sender = new Sender(logger, gitlabServerUrl);
+      sender.testMessage(deviceToken).subscribe( (v) => logger.print("L"+v?.toString()));
     }
   )
 

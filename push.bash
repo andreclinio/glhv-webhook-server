@@ -24,7 +24,7 @@ payload='
     "git_http_url":"http://example.com/mike/diaspora.git",
     "namespace":"Mike",
     "visibility_level":0,
-    "path_with_namespace":"mike/diaspora",
+    "path_with_namespace":"mpa/core",
     "default_branch":"master",
     "homepage":"http://example.com/mike/diaspora",
     "url":"git@example.com:mike/diaspora.git",

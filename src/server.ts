@@ -17,9 +17,8 @@ export class Server {
   constructor(config: Config) {
     this.port = config.getPort();
     this.logger = config.logger;
-    const token = config.getToken();
-    const appName = config.getApplicationName();
-    const sender = new Sender(this.logger, appName, token);
+    const gitlabServerUrl = config.getGitlabServerUrl();
+    const sender = new Sender(this.logger, gitlabServerUrl);
     this.pushHandler = new PushHandler(sender, this.logger);
     this.issueHandler = new IssueHandler(sender, this.logger);
   }
@@ -30,7 +29,6 @@ export class Server {
     app.use(express.json());
     app.post('/', (req: Request, res: Response) => {
       const body = req.body;
-      const bodyAsString = JSON.stringify(body);
       const kindRaw = body.object_kind
       const kind = kindRaw as Kind;
       const handler = this.getHandler(kind);

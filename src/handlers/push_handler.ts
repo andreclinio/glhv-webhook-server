@@ -10,6 +10,7 @@ export interface PushData {
     id: number,
     name: string,
     description: string,
+    path_with_namespace: string
   },
   total_commits_count: number,
   ref: string
@@ -26,12 +27,13 @@ export class PushHandler extends Handler {
     const userLogin = object.user_username;
     const userEmail = object.user_email;
     const projectId = object.project.id;
+    const projectPathWithNamespace = object.project.path_with_namespace;
     const projectName = object.project.name;
     const numCommits = object.total_commits_count;
     const ref = object.ref;
     const msg = `User ${userLogin} has pushed ${numCommits} commit(s) on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
-    this.sendMessage(msg);
+    this.sendMessage(projectPathWithNamespace, msg);
     return 200;
   }
 }

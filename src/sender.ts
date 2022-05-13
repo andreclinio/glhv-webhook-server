@@ -6,54 +6,58 @@ type MessageResponse = {
   name: string;
 };
 
+type MessageRequest = {
+  notification: {
+    title: string,
+    body: string
+  },
+  token?: string,
+  topic?: string
+}
+
 export class Sender {
 
-  private readonly instance: AxiosInstance;
-  private readonly token: string;
-  private readonly projectId: string;
+  private readonly gitlabServerUrl: string;
   private readonly logger: Logger;
+  private readonly admin: any;
 
-  public constructor(logger: Logger, projectId: string, token: string) {
+  public constructor(logger: Logger, gitlabServerUrl: string) {
     this.logger = logger;
-    this.token = token;
-    this.projectId = projectId;
-    const baseUrl = 'https://fcm.googleapis.com'
-    this.instance = axios.create({ baseURL: baseUrl });
+    this.gitlabServerUrl = gitlabServerUrl;
+    this.admin = require("firebase-admin");
+    var serviceAccount = require("../security/gitlab-high-views-firebase-adminsdk.json");
+    this.admin.initializeApp({
+      credential: this.admin.credential.cert(serviceAccount)
+    });
+
   }
 
-  public sendMessage(message: string): Observable<string | undefined> {
-    const data = {
-      message: {
-        notification : {
-          title: "X", 
-          body: message
-        },
-        token: "e4mYbLltSCWkVe17AS4J6G:APA91bFtkzWCx_6Jwczy7E5tE39H2N4-1E3OJDli472--H4VOOGCgJxQyI6UJivPi4_kzNSBXvF2G7PN2ekAudty3_zvgogwk_iB2R_OGnw9OqrS2XrS-GT-l4f8mhEbMan7f-MztKKI"
-      }
+  public testMessage(deviceToken: string): Observable<string | undefined> {
+    this.logger.log(`Test message for device: ${deviceToken.substring(0, 10)}.....`);
+    const message = {
+      notification: {
+        title: 'GitLab High Views',
+        body: `test message from ${this.gitlabServerUrl}`
+      },
+      token: deviceToken
     };
-    const messageResponse$ = from(this.mountPostRequest<MessageResponse>(data)).pipe(
-      map((ax) => ax.data)
-    );
-    const name$ = messageResponse$.pipe(
-      catchError(err => {
-        this.logger.log(`SND ERROR: ${err.toString()}`);
-        return of(undefined)
-      }),
-      map((mr) => mr ? mr.name : undefined)
-    );
-    return name$;
+    return this.send(message);
   }
 
-  private mountUrl(): string {
-    const url = `https://fcm.googleapis.com/v1/projects/${this.projectId}/messages:send`;
-    return url;
+  public sendMessage(projectPathWithnameSpace: string, text: string): Observable<string | undefined> {
+    const topic = this.gitlabServerUrl + "%%%" + projectPathWithnameSpace.replace("/", "%%%");
+    const message = {
+      notification: {
+        title: 'GitLab High Views',
+        body: text
+      },
+      topic: topic
+    };
+    return this.send(message);
   }
 
-  private mountPostRequest<MessageResponse>(data: object): Promise<AxiosResponse<MessageResponse, any>> {
-    const auth = `Bearer ${this.token}`;
-    const pth = this.mountUrl();
-    this.logger.logUrl(pth);
-    return this.instance.post<MessageResponse>(pth, data, { headers: { Authorization: auth,  "Content-Type" : "application/json"} });
+  private send(request: MessageRequest): Observable<string | undefined> {
+    const prm = this.admin.messaging().send(request) as Promise<string | undefined>;
+    return from(prm);
   }
-
 }
