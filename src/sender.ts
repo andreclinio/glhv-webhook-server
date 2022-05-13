@@ -47,6 +47,7 @@ export class Sender {
 
   public sendMessage(projectPathWithnameSpace: string, text: string): Observable<string | undefined> {
     const topic = this.gitlabServerUrl + "%%%" + projectPathWithnameSpace.replace("/", "%%%");
+    this.logger.log(`Topic is: ${topic}`);
     const message = {
       notification: {
         title: 'GitLab High Views',

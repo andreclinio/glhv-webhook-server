@@ -17,8 +17,12 @@ export abstract class Handler {
   }
 
   sendMessage(projectPathWithNamespace: string, message: string) : void {
-    this.sender.sendMessage(projectPathWithNamespace, message).subscribe( _id => {});
+    this.sender.sendMessage(projectPathWithNamespace, message).subscribe( 
+      (id) => this.logger.log(`SND OK: ${!id ? "id?" : id.toString()}`), 
+      (err) => this.logger.log(`SND ER: ${err.toString()}`)
+    );
   }
+
 }
 
 
