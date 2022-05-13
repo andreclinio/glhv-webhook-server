@@ -18,7 +18,8 @@ export class Server {
     this.port = config.getPort();
     this.logger = config.logger;
     const gitlabServerUrl = config.getGitlabServerUrl();
-    const sender = new Sender(this.logger, gitlabServerUrl);
+    const secretFilePath = config.getSecretFilePath();
+    const sender = new Sender(this.logger, gitlabServerUrl, secretFilePath);
     this.pushHandler = new PushHandler(sender, this.logger);
     this.issueHandler = new IssueHandler(sender, this.logger);
   }

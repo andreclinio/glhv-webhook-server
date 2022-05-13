@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { catchError, from, map, Observable, of } from "rxjs";
+import { from, Observable } from "rxjs";
 import { Logger } from "./logger";
+import { accessSync, constants, existsSync, readFileSync } from "fs";
+
 
 type MessageResponse = {
   name: string;
@@ -21,15 +22,15 @@ export class Sender {
   private readonly logger: Logger;
   private readonly admin: any;
 
-  public constructor(logger: Logger, gitlabServerUrl: string) {
+  public constructor(logger: Logger, gitlabServerUrl: string, secretFilePath: string) {
     this.logger = logger;
     this.gitlabServerUrl = gitlabServerUrl;
     this.admin = require("firebase-admin");
-    var serviceAccount = require("../security/gitlab-high-views-firebase-adminsdk.json");
+    Sender.checkSecretFile(logger, secretFilePath);
+    var serviceAccount = require(secretFilePath);
     this.admin.initializeApp({
       credential: this.admin.credential.cert(serviceAccount)
     });
-
   }
 
   public testMessage(deviceToken: string): Observable<string | undefined> {
@@ -60,4 +61,31 @@ export class Sender {
     const prm = this.admin.messaging().send(request) as Promise<string | undefined>;
     return from(prm);
   }
+
+  private static checkSecretFile(logger: Logger, secretFilePath: string) {
+    if (!existsSync(secretFilePath)) {
+      logger.exit(`Cannot find secret file!`);
+    }
+    const foundMsg = Logger.toGreen("Secret file found!");
+    logger.log(foundMsg);
+
+    if (!Sender.canRead(secretFilePath)) {
+      logger.exit(`Cannot read secret file!`);
+    }
+    const readMsg = Logger.toGreen("Secret file is readable!");
+    logger.log(readMsg);
+
+  }
+  
+  
+  private static canRead(path: string) : boolean {
+    try {
+      accessSync(path, constants.R_OK);
+      return true;
+    }
+    catch (err) {
+      return false;
+    }
+  }
 }
+

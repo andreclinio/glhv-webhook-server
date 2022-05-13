@@ -30,6 +30,7 @@ yargs(hideBin(process.argv))
     (argv) => {
       Config.addPortOption(argv);
       Config.addGitlabServerUrlOption(argv);
+      Config.addSecretFilePathOption(argv);
     },
     (args) => {
       const config = new Config(args);
@@ -46,6 +47,7 @@ yargs(hideBin(process.argv))
     (argv) => {
       Config.addDeviceTokenOption(argv);
       Config.addGitlabServerUrlOption(argv);
+      Config.addSecretFilePathOption(argv);
     },
     (args) => {
       const config = new Config(args);
@@ -53,7 +55,8 @@ yargs(hideBin(process.argv))
       logger.log(`Command: notify`);
       const gitlabServerUrl = config.getGitlabServerUrl();
       const deviceToken = config.getDeviceToken();
-      const sender = new Sender(logger, gitlabServerUrl);
+      const secretFilePath = config.getSecretFilePath();
+      const sender = new Sender(logger, gitlabServerUrl, secretFilePath);
       sender.testMessage(deviceToken).subscribe( (v) => logger.print("L"+v?.toString()));
     }
   )
