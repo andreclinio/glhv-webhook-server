@@ -25,15 +25,21 @@ export class PushHandler extends Handler {
   handle(object: PushData): number {
     const userName = object.user_name;
     const userLogin = object.user_username;
-    const userEmail = object.user_email;
-    const projectId = object.project.id;
     const projectPathWithNamespace = object.project.path_with_namespace;
     const projectName = object.project.name;
     const numCommits = object.total_commits_count;
     const ref = object.ref;
     const msg = `User ${userLogin} has pushed ${numCommits} commit(s) on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
-    this.sendMessage(projectPathWithNamespace, object);
+    const messageContent = {
+      user_login: userLogin,
+      user_name: userName,
+      project_name: projectName,
+      project_path: projectPathWithNamespace,
+      num_commits: numCommits.toFixed(0),
+      ref: ref
+    }
+    this.sendMessage(projectPathWithNamespace, messageContent);
     return 200;
   }
 }

@@ -28,7 +28,14 @@ export class TagHandler extends Handler {
     const ref = object.ref;
     const msg = `User ${userName} has pushed ${numCommits} commit(s) on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
-    this.sendMessage(projectPathWithNamespace, object);
+    const messageContent = {
+      user_name: userName,
+      project_name: projectName,
+      project_path: projectPathWithNamespace,
+      num_commits: numCommits.toFixed(0),
+      ref: ref
+    }
+    this.sendMessage(projectPathWithNamespace, messageContent);
     return 200;
   }
 }

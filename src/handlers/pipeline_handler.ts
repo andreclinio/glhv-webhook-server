@@ -42,7 +42,14 @@ export class PipelineHandler extends Handler {
     const status = object.object_attributes.status;
     const msg = `Pipeline status is ${status}  on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
-    this.sendMessage(projectPathWithNamespace, object);
+    const messageContent = {
+      user_name: userName,
+      project_name: projectName,
+      project_path: projectPathWithNamespace,
+      ref: ref,
+      status: status
+    };
+    this.sendMessage(projectPathWithNamespace, messageContent);
     return 200;
   }
 }

@@ -1,5 +1,5 @@
 import { Logger } from "../logger";
-import { MessageData, Sender } from "../sender";
+import { MessageContent, MessageData, Sender } from "../sender";
 
 export abstract class Handler {
 
@@ -13,7 +13,7 @@ export abstract class Handler {
     this.sender = sender;
   }
 
-  sendMessage(projectPathWithNamespace: string, message: MessageData): void {
+  sendMessage(projectPathWithNamespace: string, message: MessageContent): void {
     this.sender.sendMessage(projectPathWithNamespace, message).subscribe({
       next: (id) => this.logger.log(`SND OK: ${!id ? "id?" : id.toString()}`),
       error: (err) => this.logger.log(`SND ER: ${err.toString()}`)

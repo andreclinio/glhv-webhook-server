@@ -13,8 +13,12 @@ type MessageResponse = {
 
 export type MessageData = TagData | PushData | IssueData | PipelineData;
 
+export type MessageContent = {
+  [id: string]: string
+}
+
 type MessageRequest = {
-  data: MessageData,
+  data: MessageContent,
   token?: string,
   topic?: string
 }
@@ -49,11 +53,11 @@ export class Sender {
     return from(prm);
   }
 
-  public sendMessage(projectPathWithnameSpace: string, messageData: MessageData): Observable<string | undefined> {
+  public sendMessage(projectPathWithnameSpace: string, messageContent: MessageContent): Observable<string | undefined> {
     const topic = this.gitlabServerUrl + "%%%" + projectPathWithnameSpace.replace("/", "%%%");
-    this.logger.log(`Topic is: ${topic}`);
+    this.logger.log(`Topic is: ${topic} -> ${JSON.stringify(messageContent)}`);
     const messageRequest : MessageRequest = {
-      data: messageData,
+      data: messageContent,
       topic: topic
     };
     const prm = this.admin.messaging().send(messageRequest) as Promise<string | undefined>;
