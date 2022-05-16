@@ -24,10 +24,10 @@ export class Server {
     const gitlabServerUrl = config.getGitlabServerUrl();
     const secretFilePath = config.getSecretFilePath();
     const sender = new Sender(this.logger, gitlabServerUrl, secretFilePath);
-    this.pushHandler = new PushHandler(sender, this.logger);
-    this.issueHandler = new IssueHandler(sender, this.logger);
-    this.pipelineHandler = new PipelineHandler(sender, this.logger);
-    this.tagHandler = new TagHandler(sender, this.logger);
+    this.pushHandler = new PushHandler(sender, this.logger, false);
+    this.issueHandler = new IssueHandler(sender, this.logger, false);
+    this.pipelineHandler = new PipelineHandler(sender, this.logger, true);
+    this.tagHandler = new TagHandler(sender, this.logger, true);
   }
 
   run(): void {
@@ -41,8 +41,14 @@ export class Server {
       const handler = this.getHandler(kind);
       if (handler) {
         this.logger.log(`Recognized event kind ${kind}`);
-        const status = handler.handle(body);
-        res.status(status);
+        if (handler.enabled) {
+          const status = handler.handle(body);
+          res.status(status);
+        }
+        else {
+          this.logger.log(`Event kind ${kind} is disabled.`);
+          res.status(200);
+        }
       }
       else {
         this.logger.log(`Unrecognized event kind [${kind}]`);

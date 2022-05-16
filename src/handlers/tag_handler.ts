@@ -16,8 +16,8 @@ export interface TagData {
 
 export class TagHandler extends Handler {
 
-  constructor(sender: Sender, logger: Logger) {
-    super(sender, logger);
+  constructor(sender: Sender, logger: Logger, enabled: boolean) {
+    super(sender, logger, enabled);
   }
 
   handle(object: TagData): number {
@@ -29,6 +29,7 @@ export class TagHandler extends Handler {
     const msg = `User ${userName} has pushed ${numCommits} commit(s) on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
     const messageContent = {
+      event_type: "tag",
       user_name: userName,
       project_name: projectName,
       project_path: projectPathWithNamespace,

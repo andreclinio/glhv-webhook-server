@@ -22,8 +22,8 @@ export interface IssueData {
 
 export class IssueHandler extends Handler {
 
-  constructor(sender: Sender, logger: Logger) {
-    super(sender, logger);
+  constructor(sender: Sender, logger: Logger, enabled: boolean) {
+    super(sender, logger, enabled);
   }
 
   handle(object: IssueData): number {
@@ -35,6 +35,7 @@ export class IssueHandler extends Handler {
     const msg = `User ${userLogin} has performed action ${action} for issue ${issueTitle} on project ${projectName}`;
     this.logger.log(msg);
     const messageContent = {
+      event_type: "issue",
       user_login: userLogin,
       project_name: projectName,
       project_path: projectPathWithNamespace,

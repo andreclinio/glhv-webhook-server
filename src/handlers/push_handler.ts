@@ -18,8 +18,8 @@ export interface PushData {
 
 export class PushHandler extends Handler {
 
-  constructor(sender: Sender, logger: Logger) {
-    super(sender, logger);
+  constructor(sender: Sender, logger: Logger, enabled: boolean) {
+    super(sender, logger, enabled);
   }
 
   handle(object: PushData): number {
@@ -32,6 +32,7 @@ export class PushHandler extends Handler {
     const msg = `User ${userLogin} has pushed ${numCommits} commit(s) on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
     const messageContent = {
+      event_type: "push",
       user_login: userLogin,
       user_name: userName,
       project_name: projectName,

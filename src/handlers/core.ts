@@ -5,12 +5,14 @@ export abstract class Handler {
 
   protected readonly logger;
   protected readonly sender;
+  public readonly enabled;
 
   abstract handle(object: MessageData): number;
 
-  constructor(sender: Sender, logger: Logger) {
+  constructor(sender: Sender, logger: Logger, enabled: boolean) {
     this.logger = logger;
     this.sender = sender;
+    this.enabled = enabled;
   }
 
   sendMessage(projectPathWithNamespace: string, message: MessageContent): void {

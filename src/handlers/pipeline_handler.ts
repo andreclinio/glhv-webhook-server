@@ -30,8 +30,8 @@ export interface PipelineData {
 
 export class PipelineHandler extends Handler {
 
-  constructor(sender: Sender, logger: Logger) {
-    super(sender, logger);
+  constructor(sender: Sender, logger: Logger, enabled: boolean) {
+    super(sender, logger, enabled);
   }
 
   handle(object: PipelineData): number {
@@ -43,6 +43,7 @@ export class PipelineHandler extends Handler {
     const msg = `Pipeline status is ${status}  on project ${projectName} :: ${ref}`;
     this.logger.log(msg);
     const messageContent = {
+      event_type: "pipeline",
       user_name: userName,
       project_name: projectName,
       project_path: projectPathWithNamespace,
