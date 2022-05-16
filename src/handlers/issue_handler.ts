@@ -34,7 +34,7 @@ export class IssueHandler extends Handler {
     const action = object.object_attributes.action;
     const msg = `User ${userLogin} has performed action ${action} for issue ${issueTitle} on project ${projectName}`;
     this.logger.log(msg);
-    this.sendMessage(projectPathWithNamespace, msg);
+    this.sendMessage(projectPathWithNamespace, object);
     return 200;
   }
 }

@@ -1,17 +1,20 @@
 import { from, Observable } from "rxjs";
 import { Logger } from "./logger";
-import { accessSync, constants, existsSync, readFileSync } from "fs";
+import { accessSync, constants, existsSync } from "fs";
+import { TagData } from "./handlers/tag_handler";
+import { PushData } from "./handlers/push_handler";
+import { IssueData } from "./handlers/issue_handler";
+import { PipelineData } from "./handlers/pipeline_handler";
 
 
 type MessageResponse = {
   name: string;
 };
 
+export type MessageData = TagData | PushData | IssueData | PipelineData;
+
 type MessageRequest = {
-  notification: {
-    title: string,
-    body: string
-  },
+  payload: MessageData,
   token?: string,
   topic?: string
 }
@@ -35,31 +38,25 @@ export class Sender {
 
   public testMessage(deviceToken: string): Observable<string | undefined> {
     this.logger.log(`Test message for device: ${deviceToken.substring(0, 10)}.....`);
-    const message = {
+    const messageRequest = {
       notification: {
         title: 'GitLab High Views',
         body: `test message from ${this.gitlabServerUrl}`
       },
       token: deviceToken
     };
-    return this.send(message);
+    const prm = this.admin.messaging().send(messageRequest) as Promise<string | undefined>;
+    return from(prm);
   }
 
-  public sendMessage(projectPathWithnameSpace: string, text: string): Observable<string | undefined> {
+  public sendMessage(projectPathWithnameSpace: string, messageData: MessageData): Observable<string | undefined> {
     const topic = this.gitlabServerUrl + "%%%" + projectPathWithnameSpace.replace("/", "%%%");
     this.logger.log(`Topic is: ${topic}`);
-    const message = {
-      notification: {
-        title: 'GitLab High Views',
-        body: text
-      },
+    const messageRequest : MessageRequest = {
+      payload: messageData,
       topic: topic
     };
-    return this.send(message);
-  }
-
-  private send(request: MessageRequest): Observable<string | undefined> {
-    const prm = this.admin.messaging().send(request) as Promise<string | undefined>;
+    const prm = this.admin.messaging().send(messageRequest) as Promise<string | undefined>;
     return from(prm);
   }
 
@@ -77,7 +74,6 @@ export class Sender {
     logger.log(readMsg);
 
   }
-  
   
   private static canRead(path: string) : boolean {
     try {

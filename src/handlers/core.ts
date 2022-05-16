@@ -1,26 +1,23 @@
-import { Observable } from "rxjs";
 import { Logger } from "../logger";
-import { Sender } from "../sender";
-import { IssueData } from "./issue_handler";
-import { PushData } from "./push_handler";
+import { MessageData, Sender } from "../sender";
 
 export abstract class Handler {
 
   protected readonly logger;
   protected readonly sender;
 
-  abstract handle(object: PushData | IssueData): number;
+  abstract handle(object: MessageData): number;
 
   constructor(sender: Sender, logger: Logger) {
     this.logger = logger;
     this.sender = sender;
   }
 
-  sendMessage(projectPathWithNamespace: string, message: string) : void {
-    this.sender.sendMessage(projectPathWithNamespace, message).subscribe( 
-      (id) => this.logger.log(`SND OK: ${!id ? "id?" : id.toString()}`), 
-      (err) => this.logger.log(`SND ER: ${err.toString()}`)
-    );
+  sendMessage(projectPathWithNamespace: string, message: MessageData): void {
+    this.sender.sendMessage(projectPathWithNamespace, message).subscribe({
+      next: (id) => this.logger.log(`SND OK: ${!id ? "id?" : id.toString()}`),
+      error: (err) => this.logger.log(`SND ER: ${err.toString()}`)
+    });
   }
 
 }

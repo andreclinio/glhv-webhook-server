@@ -2,10 +2,12 @@ import express, { Express, Request, Response } from 'express';
 import { Config } from './config';
 import { Handler } from './handlers/core';
 import { IssueHandler } from './handlers/issue_handler';
+import { PipelineHandler } from './handlers/pipeline_handler';
 import { PushHandler } from './handlers/push_handler';
+import { TagHandler } from './handlers/tag_handler';
 import { Sender } from './sender';
 
-type Kind = "push" |"tag" | "issue";
+type Kind = "push" | "tag_push" | "issue" | "pipeline";
 
 export class Server {
 
@@ -13,6 +15,8 @@ export class Server {
   private readonly logger;
   private readonly pushHandler;
   private readonly issueHandler;
+  private readonly pipelineHandler;
+  private readonly tagHandler;
 
   constructor(config: Config) {
     this.port = config.getPort();
@@ -22,6 +26,8 @@ export class Server {
     const sender = new Sender(this.logger, gitlabServerUrl, secretFilePath);
     this.pushHandler = new PushHandler(sender, this.logger);
     this.issueHandler = new IssueHandler(sender, this.logger);
+    this.pipelineHandler = new PipelineHandler(sender, this.logger);
+    this.tagHandler = new TagHandler(sender, this.logger);
   }
 
   run(): void {
@@ -55,7 +61,10 @@ export class Server {
         return this.pushHandler;
       case 'issue':
         return this.issueHandler;
-      case 'tag':
+      case 'tag_push':
+        return this.tagHandler;
+      case 'pipeline':
+        return this.tagHandler;
       default:
         return undefined;
     }
