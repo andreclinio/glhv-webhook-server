@@ -14,7 +14,7 @@ type MessageResponse = {
 export type MessageData = TagData | PushData | IssueData | PipelineData;
 
 type MessageRequest = {
-  payload: MessageData,
+  data: MessageData,
   token?: string,
   topic?: string
 }
@@ -53,7 +53,7 @@ export class Sender {
     const topic = this.gitlabServerUrl + "%%%" + projectPathWithnameSpace.replace("/", "%%%");
     this.logger.log(`Topic is: ${topic}`);
     const messageRequest : MessageRequest = {
-      payload: messageData,
+      data: messageData,
       topic: topic
     };
     const prm = this.admin.messaging().send(messageRequest) as Promise<string | undefined>;
